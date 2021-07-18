@@ -1,0 +1,9 @@
+RealmSample/xcuserdata/
+Pods/
+*.DS_Store
+RealmSample.xcodeproj/xcuserdata/
+build/
+fastlane/report.xml
+*.zip
+*.ipa
+*.dSYM
