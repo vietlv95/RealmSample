@@ -30,7 +30,9 @@ class ViewController: UIViewController {
   }
   
   private func fetchData() {
-    
+    let realm = try! Realm()
+    peoples = realm.objects(People.self)
+    self.tableView.reloadData()
   }
 
   @IBAction func addName(_ sender: UIBarButtonItem) {
@@ -41,11 +43,25 @@ class ViewController: UIViewController {
   }
   
   func update(name: String,phone: String,  index: Int) {
+    let realm = try! Realm()
     
+    let person = self.peoples[index]
+    try! realm.write {
+        person.name = name
+        person.phone = phone
+    }
   }
   
   func save(name: String, phone: String) {
+    let person = People()
+    person.id = UUID().uuidString
+    person.name = name
+    person.phone = phone
     
+    let realm = try! Realm()
+    try! realm.write {
+        realm.add(person)
+    }
   }
 }
 
@@ -56,10 +72,10 @@ extension ViewController: UITableViewDataSource {
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-    
+    let person = peoples[indexPath.row]
     let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-    
+    cell.textLabel?.numberOfLines = 0
+    cell.textLabel?.text = "Name: \(person.name ?? "")" + "\n" + "Phone: \(person.phone ?? "")"
     return cell
   }
 }
@@ -75,13 +91,18 @@ extension ViewController: UITableViewDelegate {
   
   func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
     if editingStyle == .delete {
-        
+        let person = peoples[indexPath.row]
+        let realm = try! Realm()
+        try! realm.write {
+            realm.delete(person)
+        }
+        self.tableView.reloadData()
     }
   }
-  
-    func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
-        return "Delete"
-    }
+    
+  func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
+    return "Delete"
+  }
 }
 
 extension ViewController {
